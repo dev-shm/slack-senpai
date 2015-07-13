@@ -1,0 +1,41 @@
+{
+  "name": "senpai",
+  "version": "0.0.1",
+  "author": {
+    "name": "Senpai",
+    "url": "https://github.com/dev-shm/slack-senpai"
+  },
+  "contributors": [
+    {
+      "name": "nzwalker",
+    },
+    {
+      "name": "josnow"
+    },
+    {
+      "name": "archrichard"
+    }
+  ],
+  "keywords": [
+    "senpai",
+    "slack",
+    "bot"
+ ],
+  "description": "A Slack bot for hummingbird.me",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dev-shm/slack-senpai"
+  },
+  "bugs": {
+    "url": "https://github.com/dev-shm/slack-senpai/issues"
+  },
+  "dependencies": {
+    "slack-client": "~1.4.1"
+  }
+}
