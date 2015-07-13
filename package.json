@@ -28,6 +28,7 @@
       "url": "http://opensource.org/licenses/mit-license.php"
     }
   ],
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/dev-shm/slack-senpai"

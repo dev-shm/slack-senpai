@@ -2,29 +2,45 @@ var https = require('https');
 var Slack = require('slack-client');
 var fs = require('fs');
 
-var token = process.env.SLACK_TOKEN;
-var autoReconnect = true;
-var autoMark = true;
-
-var slack = new Slack(token, autoReconnect, autoMark);
 var channel = null;
 
 var userData = [];
 
-var writeToChannel = function(message) {
+var Senpai = function(options) {
+	var options;
+
+	options = {
+      token: process.env.SLACK_TOKEN,
+      autoReconnect: true,
+      autoMark: true
+	};
+
+	if (!options.token) {
+		// Throw error
+	}
+
+	this.options = options;
+	this.slack = new Slack(options.token, options.autoReconnect, options.autoMark);
+	this.slack.on('open', this.open);
+	this.slack.on('message', this.message);
+
+	return this.slack.login();
+}
+
+Senpai.prototype.writeToChannel = function(message) {
 	var channel = slack.getChannelByName('#anime');
 	channel.send(message);
 };
 
-var checkUserData = function() {
+Senpai.prototype.checkUserData = function() {
 	checkStory('', evalStory);
 	checkStory('', evalStory);
 	checkStory('', evalStory);
 };
 
-var evalStory = function(username, data) {
+Senpai.prototype.evalStory = function(username, data) {
 	console.log("During eval it is" + userData);
-	//console.log(data);
+		//console.log(data);
 	var stories = JSON.parse(data);
 	//writeToChannel('I got ' + stories.length + ' stories for ' + username);
 	// Iterate over the parent stories where type = media_story
@@ -60,7 +76,7 @@ var evalStory = function(username, data) {
 	}
 };
 
-var checkStory = function(username, callback) {
+Senpai.prototype.checkStory = function(username, callback) {
 	console.log("Checking " + username);
 	var options = {
 		host: 'hummingbird.me',
@@ -83,7 +99,7 @@ var checkStory = function(username, callback) {
 	}).end();
 };
 
-var writeUserData = function() {
+Senpai.prototype.writeUserData = function() {
 	console.log("Attempting to save: " + JSON.stringify(userData));
 	fs.writeFile('data.json', JSON.stringify(userData), function (err) {
 	if (err) throw err;
@@ -91,23 +107,23 @@ var writeUserData = function() {
 	});
 };
 
-var readUserData = function() {
+Senpai.prototype.readUserData = function() {
 	fs.readFile('data.json', function (err, data) {
 	if (err) throw err;
 	userData = JSON.parse(data);
 	});
 };
 
-slack.on('open', function () {
+Senpai.prototype.open = function() {
 	console.log("Connection established!");
 	var channel = slack.getChannelByName('#anime');
 	var general = slack.getChannelByName('#general');
 	setInterval(checkUserData, 5000);
 	setInterval(writeUserData, 7000);
-});
+};
 
-slack.on('message', function() {
+Senpai.prototype.message = function() {
 	console.log('I got a message!');
-});
+};
 
-slack.login();
+module.exports = Senpai;
