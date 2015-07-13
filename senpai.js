@@ -7,8 +7,14 @@ var autoMark = true;
 
 var slack = new Slack(token, autoReconnect, autoMark);
 
-var channel = slack.getChannelGroupOrDMByName('anime');
+slack.on('open', function () {
+	console.log("Connection established!");
+	var channel = slack.getChannelByName('#anime');
+	channel.send('I am alive Onii-chan');
+});
 
-//channel.send('test');
+slack.on('message', function() {
+	console.log('I got a message!');
+});
 
 slack.login();
