@@ -7,7 +7,7 @@ var Senpai = function(options) {
 	var options;
 
 	options = {
-      token: 'xoxb-7639213620-pFp5Vht7JITMPGJOCt6Q4Lnr',
+      token: process.env.SLACK_TOKEN,
       autoReconnect: true,
       autoMark: true
 	};
