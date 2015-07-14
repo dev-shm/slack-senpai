@@ -1,12 +1,13 @@
 var https = require('https');
 var Slack = require('slack-client');
 var fs = require('fs');
+var _bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 var Senpai = function(options) {
 	var options;
 
 	options = {
-      token: process.env.SLACK_TOKEN,
+      token: 'xoxb-7639213620-pFp5Vht7JITMPGJOCt6Q4Lnr',
       autoReconnect: true,
       autoMark: true
 	};
@@ -18,14 +19,27 @@ var Senpai = function(options) {
 	this.userData = [];
 
 	this.options = options;
+
 	this.slack = new Slack(options.token, options.autoReconnect, options.autoMark);
+
+	// We can refactor our methods / properties to avoid these sort of scope issues
+	this.writeToChannel = _bind(this.writeToChannel, this);
+	this.checkUserData = _bind(this.checkUserData, this);
+	this.evalStory = _bind(this.evalStory, this);
+	this.checkStory = _bind(this.checkStory, this);
+	this.open = _bind(this.open, this);
+	this.message = _bind(this.message, this);
+
 	this.slack.on('open', this.open);
 	this.slack.on('message', this.message);
 
+	// check/write user data should really happen here. 
+	// slack listeners should just use the we have available here?
 	return this.slack.login();
 };
 
 Senpai.prototype.writeToChannel = function(message) {
+	// if connected, then send
 	var channel = this.slack.getChannelByName('#anime');
 	channel.send(message);
 };
@@ -113,6 +127,7 @@ Senpai.prototype.readUserData = function() {
 };
 
 Senpai.prototype.open = function() {
+	console.log(this.slack);
 	console.log("Connection established!");
 	var channel = this.slack.getChannelByName('#anime');
 	var general = this.slack.getChannelByName('#general');
