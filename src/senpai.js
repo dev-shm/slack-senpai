@@ -2,10 +2,6 @@ var https = require('https');
 var Slack = require('slack-client');
 var fs = require('fs');
 
-var channel = null;
-
-var userData = [];
-
 var Senpai = function(options) {
 	var options;
 
@@ -19,6 +15,8 @@ var Senpai = function(options) {
 		// Throw error
 	}
 
+	this.userData = [];
+
 	this.options = options;
 	this.slack = new Slack(options.token, options.autoReconnect, options.autoMark);
 	this.slack.on('open', this.open);
@@ -28,18 +26,18 @@ var Senpai = function(options) {
 }
 
 Senpai.prototype.writeToChannel = function(message) {
-	var channel = slack.getChannelByName('#anime');
+	var channel = this.slack.getChannelByName('#anime');
 	channel.send(message);
 };
 
 Senpai.prototype.checkUserData = function() {
-	checkStory('', evalStory);
-	checkStory('', evalStory);
-	checkStory('', evalStory);
+	this.checkStory('', this.evalStory);
+	this.checkStory('', this.evalStory);
+	this.checkStory('', this.evalStory);
 };
 
 Senpai.prototype.evalStory = function(username, data) {
-	console.log("During eval it is" + userData);
+	console.log("During eval it is" + this.userData);
 		//console.log(data);
 	var stories = JSON.parse(data);
 	//writeToChannel('I got ' + stories.length + ' stories for ' + username);
@@ -49,7 +47,7 @@ Senpai.prototype.evalStory = function(username, data) {
 	});
 
 	// Select the parent where the child story has a higher ID than the last seen for that user
-	var lastSeen = userData[username];
+	var lastSeen = this.userData[username];
 	if (lastSeen === undefined) {
 		lastSeen = 0;
 	}
@@ -71,8 +69,8 @@ Senpai.prototype.evalStory = function(username, data) {
 		//writeToChannel("Looks like " + username + " just watched " + recent.media.title);
 		// Echo out the data
 		console.log("Set user data for " + username);
-		userData[username] = recent.id;
-		console.log(userData);
+		this.userData[username] = recent.id;
+		console.log(this.userData);
 	}
 };
 
@@ -100,8 +98,8 @@ Senpai.prototype.checkStory = function(username, callback) {
 };
 
 Senpai.prototype.writeUserData = function() {
-	console.log("Attempting to save: " + JSON.stringify(userData));
-	fs.writeFile('data.json', JSON.stringify(userData), function (err) {
+	console.log("Attempting to save: " + JSON.stringify(this.userData));
+	fs.writeFile('data.json', JSON.stringify(this.userData), function (err) {
 	if (err) throw err;
 	console.log('It\'s saved!');
 	});
@@ -110,16 +108,16 @@ Senpai.prototype.writeUserData = function() {
 Senpai.prototype.readUserData = function() {
 	fs.readFile('data.json', function (err, data) {
 	if (err) throw err;
-	userData = JSON.parse(data);
+	this.userData = JSON.parse(data);
 	});
 };
 
 Senpai.prototype.open = function() {
 	console.log("Connection established!");
-	var channel = slack.getChannelByName('#anime');
-	var general = slack.getChannelByName('#general');
-	setInterval(checkUserData, 5000);
-	setInterval(writeUserData, 7000);
+	var channel = this.slack.getChannelByName('#anime');
+	var general = this.slack.getChannelByName('#general');
+	setInterval(this.checkUserData, 5000);
+	setInterval(this.writeUserData, 7000);
 };
 
 Senpai.prototype.message = function() {

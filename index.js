@@ -1,7 +1,5 @@
-var Senpai;
+var Senpai, senpair;
 
-Senpai = require('./src/senpai.js')
+Senpai = require('./src/senpai')
 
-options = {};
-
-new Senpai(options);
+senpai = new Senpai({});
