@@ -1,4 +1,4 @@
-var Senpai, senpair;
+var Senpai, senpai;
 
 Senpai = require('./src/senpai')
 

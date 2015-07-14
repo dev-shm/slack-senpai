@@ -23,7 +23,7 @@ var Senpai = function(options) {
 	this.slack.on('message', this.message);
 
 	return this.slack.login();
-}
+};
 
 Senpai.prototype.writeToChannel = function(message) {
 	var channel = this.slack.getChannelByName('#anime');
