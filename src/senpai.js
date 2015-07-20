@@ -3,58 +3,62 @@ var Slack = require('slack-client');
 var Feed = require('./feed');
 var Storage = require('./storage');
 var fs = require('fs');
-var _bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+var _bind = function (fn, me) {
+    return function () {
+        return fn.apply(me, arguments);
+    };
+};
 
-var Senpai = function(options) {
-	var options = {
-      token: process.env.SLACK_TOKEN,
-      autoReconnect: true,
-      autoMark: true
-	};
+var Senpai = function (options) {
+    var options = {
+        token: process.env.SLACK_TOKEN,
+        autoReconnect: true,
+        autoMark: true
+    };
 
-	if (!options.token) {
-		// Throw error
-	}
+    if (!options.token) {
+        // Throw error
+    }
 
     this.storage = new Storage();
     this.storage.load();
 
-	this.options = options;
+    this.options = options;
 
-	this.slack = new Slack(options.token, options.autoReconnect, options.autoMark);
+    this.slack = new Slack(options.token, options.autoReconnect, options.autoMark);
     this.hummingbird = new Hummingbird();
-	// We can refactor our methods / properties to avoid these sort of scope issues
-	this.writeToChannel = _bind(this.writeToChannel, this);
+    // We can refactor our methods / properties to avoid these sort of scope issues
+    this.writeToChannel = _bind(this.writeToChannel, this);
     this.postToChannel = _bind(this.postToChannel, this);
-	this.evalStory = _bind(this.evalStory, this);
-	this.checkStory = _bind(this.checkStory, this);
-	this.open = _bind(this.open, this);
-	this.message = _bind(this.message, this);
+    this.evalStory = _bind(this.evalStory, this);
+    this.checkStory = _bind(this.checkStory, this);
+    this.open = _bind(this.open, this);
+    this.message = _bind(this.message, this);
 
-	this.slack.on('open', this.open);
-	this.slack.on('message', this.message);
+    this.slack.on('open', this.open);
+    this.slack.on('message', this.message);
 
-	return this.slack.login();
+    return this.slack.login();
 };
 
-Senpai.prototype.writeToChannel = function(message) {
+Senpai.prototype.writeToChannel = function (message) {
     // if connected, then send
     var channel = this.slack.getChannelByName('#anime');
     channel.send(message);
 };
 
-Senpai.prototype.postToChannel = function(data) {
+Senpai.prototype.postToChannel = function (data) {
     // if connected, then send
     var channel = this.slack.getChannelByName('#anime');
     channel.postMessage(data);
 };
 
-Senpai.prototype.checkUserData = function() {
-	this.hummingbird.getFeed('', this.evalStory);
+Senpai.prototype.checkUserData = function () {
+    this.hummingbird.getFeed('', this.evalStory);
     this.storage.save();
 };
 
-Senpai.prototype.evalStory = function(username, data) {
+Senpai.prototype.evalStory = function (username, data) {
     var feed = new Feed(JSON.parse(data));
 
     // Select the parent where the child story has a higher ID than the last seen for that user
@@ -63,7 +67,7 @@ Senpai.prototype.evalStory = function(username, data) {
         lastSeen = 0;
     }
 
-    var searchFunction = function(value, index, array) {
+    var searchFunction = function (value, index, array) {
         val = (value["id"] > lastSeen) && (value.substory_type == 'watched_episode');
         return val;
     }.bind(lastSeen);
@@ -90,15 +94,15 @@ Senpai.prototype.evalStory = function(username, data) {
     }
 };
 
-Senpai.prototype.open = function() {
-	console.log("Connection established!");
-	var channel = this.slack.getChannelByName('#anime');
-	var general = this.slack.getChannelByName('#general');
-	setInterval(this.checkUserData.bind(this), 10000);
+Senpai.prototype.open = function () {
+    console.log("Connection established!");
+    var channel = this.slack.getChannelByName('#anime');
+    var general = this.slack.getChannelByName('#general');
+    setInterval(this.checkUserData.bind(this), 10000);
 };
 
-Senpai.prototype.message = function() {
-	console.log('I got a message!');
+Senpai.prototype.message = function () {
+    console.log('I got a message!');
 };
 
 module.exports = Senpai;
